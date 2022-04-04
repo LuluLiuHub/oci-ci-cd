@@ -12,6 +12,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # env:
+    #     STACK_NAME: "OCI Resource Manager Demo Stack"
+    #     PROVIDER_NAME: "GitHub Source Provider"
+    #     BRANCH_NAME: "github-actions-resource-manager"
+    #     REPO_URL: "https://github.com/recursivecodes/oci-resource-manager-demo"
+    #     TF_VERSION: "0.13.x"
+    #     REGION: "us-phoenix-1"
+    #     BUCKET_NAME: "test_bucket"
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -49,7 +58,7 @@ jobs:
           docker rmi jasonyanzz/dockerizednodeapp:latest 
           docker run -p 8080:8080 -d --name nodeApp jasonyanzz/dockerizednodeapp
 
-      # ocker pull jasonyanzz/dockerizednodeapp:latest
+      # docker pull jasonyanzz/dockerizednodeapp:latest
       # script: |
         #   mkdir -p ~/.oci
         #   echo "[DEFAULT]" >> ~/.oci/config-tmp
@@ -62,3 +71,7 @@ jobs:
         #   mv ~/.oci/config-tmp ~/.oci/config
         #   echo "${{secrets.OCI_KEY_FILE}}" >> ~/.oci/key-tmp.pem
         #   mv ~/.oci/key-tmp.pem ~/.oci/key.pem
+
+
+    # - name: 'Setup Docker'
+    #   uses: docker-practice/actions-setup-docker@master
