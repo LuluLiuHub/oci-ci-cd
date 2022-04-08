@@ -12,6 +12,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # env:
+    #     STACK_NAME: "OCI Resource Manager Demo Stack"
+    #     PROVIDER_NAME: "GitHub Source Provider"
+    #     BRANCH_NAME: "github-actions-resource-manager"
+    #     REPO_URL: "https://github.com/recursivecodes/oci-resource-manager-demo"
+    #     TF_VERSION: "0.13.x"
+    #     REGION: "us-phoenix-1"
+    #     BUCKET_NAME: "test_bucket"
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -23,11 +32,46 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        tags: luluoracle/dockerizednodeapp:latest
-        push: true
     - name: Build and push to Docker Hub
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
         tags: luluoracle/dockerizednodeapp:latest
+
+    - name: 'Wait for SSH'
+      run: |
+        while ! nc -w5 -z ${{ secrets.INSTANCE_IP }} 22; do
+                sleep 5
+                echo "SSH not available..."
+        done; echo "SSH ready!"
+
+    - name: 'SSH to VM'
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.INSTANCE_IP }}
+        username: opc
+        key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+        timeout: 30s
+        script: |
+          docker rm -f nodeApp
+          docker rmi jasonyanzz/dockerizednodeapp:latest 
+          docker run -p 8080:8080 -d --name nodeApp jasonyanzz/dockerizednodeapp
+
+      # docker pull jasonyanzz/dockerizednodeapp:latest
+      # script: |
+        #   mkdir -p ~/.oci
+        #   echo "[DEFAULT]" >> ~/.oci/config-tmp
+        #   echo "user=${{secrets.OCI_USER_OCID}}" >> ~/.oci/config-tmp
+        #   echo "fingerprint=${{secrets.OCI_FINGERPRINT}}" >> ~/.oci/config-tmp
+        #   echo "pass_phrase=${{secrets.OCI_PASSPHRASE}}" >> ~/.oci/config-tmp
+        #   echo "region=${{secrets.OCI_REGION}}" >> ~/.oci/config-tmp
+        #   echo "tenancy=${{secrets.OCI_TENANCY_OCID}}" >> ~/.oci/config-tmp
+        #   echo "key_file=~/.oci/key.pem" >> ~/.oci/config-tmp
+        #   mv ~/.oci/config-tmp ~/.oci/config
+        #   echo "${{secrets.OCI_KEY_FILE}}" >> ~/.oci/key-tmp.pem
+        #   mv ~/.oci/key-tmp.pem ~/.oci/key.pem
+
+
+    # - name: 'Setup Docker'
+    #   uses: docker-practice/actions-setup-docker@master
