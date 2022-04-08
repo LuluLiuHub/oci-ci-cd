@@ -2,7 +2,8 @@ name: Deploy Infrastructure
 
 on:
   push:
-    branches: [ infra_deploy ]
+    branches: 
+      - infra-deploy 
 
 jobs:
   build-resource-manager:
@@ -11,7 +12,7 @@ jobs:
     env: 
         STACK_NAME: "OCI Resource Manager Demo Stack"
         PROVIDER_NAME: "GitHub Source Provider"
-        BRANCH_NAME: "infra_deploy"
+        BRANCH_NAME: "infra-deploy"
         REPO_URL: "https://github.com/KJTx1/oci-ci-cd"
         TF_VERSION: "0.13.x"
         REGION: "us-sanjose-1"
